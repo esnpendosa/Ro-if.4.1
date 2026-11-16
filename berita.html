@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" href="assets/images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap">
+    <title>Berita &amp; Artikel - AgriVoice AI</title>
+    <meta name="description" content="Berita, artikel, tips tani, dan kabar terbaru dari AgriVoice AI.">
+    <meta property="og:title" content="Berita &amp; Artikel - AgriVoice AI">
+    <meta property="og:description" content="Berita, artikel, tips tani, dan kabar terbaru dari AgriVoice AI.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/logo.png">
+    <link rel="stylesheet" href="css/news.css">
+</head>
+<body>
+<header class="site-header"><div class="w">
+    <a class="brand" href="index.html">
+        <img src="assets/images/logo.png" alt="AgriVoice AI">
+        <span>AgriVoice AI</span>
+    </a>
+    <nav>
+        <a href="index.html">Beranda</a>
+        <a class="active" href="berita.html">Berita</a>
+        <a href="index.html#kontak">Hubungi</a>
+    </nav>
+</div></header>
+
+<section class="hero"><div class="w">
+    <span class="eyebrow">Wawasan pertanian</span>
+    <h1>Berita &amp; Artikel</h1>
+    <p>Kabar, cerita, dan tips pertanian dari AgriVoice AI.</p>
+</div></section>
+
+<main class="content"><div class="w">
+    <div class="filters">
+        <div class="pills" id="category-pills">
+            <button type="button" class="pill active" data-cat="">Semua</button>
+            <button type="button" class="pill" data-cat="Tips Tani">Tips Tani</button>
+            <button type="button" class="pill" data-cat="Berita Dinas">Berita Dinas</button>
+            <button type="button" class="pill" data-cat="Update AgriVoice">Update AgriVoice</button>
+        </div>
+        <form class="search" id="search-form" onsubmit="event.preventDefault();">
+            <input type="search" id="search-input" placeholder="Cari judul artikel" aria-label="Cari judul artikel">
+            <button type="submit">Cari</button>
+        </form>
+    </div>
+
+    <div class="results">
+        <span>Artikel untuk Anda</span>
+        <strong id="article-count">3 artikel</strong>
+    </div>
+
+    <div class="grid" id="news-grid">
+        <!-- populated by JavaScript -->
+    </div>
+</div></main>
+
+<footer><div class="w">
+    <span>© 2026 AgriVoice AI</span>
+    <a href="index.html">Kembali ke beranda</a>
+</div></footer>
+
+<script src="js/articles.js"></script>
+<script>
+(function() {
+    var articles = window.ARTICLES || [];
+    var currentCat = '';
+    var currentQuery = '';
+    var grid = document.getElementById('news-grid');
+    var countEl = document.getElementById('article-count');
+    var searchInput = document.getElementById('search-input');
+    var pills = document.querySelectorAll('#category-pills .pill');
+
+    // Parse initial URL parameters
+    var params = new URLSearchParams(window.location.search);
+    if (params.has('kategori')) {
+        currentCat = params.get('kategori') || '';
+    }
+    if (params.has('q')) {
+        currentQuery = params.get('q') || '';
+        searchInput.value = currentQuery;
+    }
+
+    function render() {
+        // Update active pill
+        pills.forEach(function(pill) {
+            pill.classList.toggle('active', pill.getAttribute('data-cat') === currentCat);
+        });
+
+        // Filter articles
+        var filtered = articles.filter(function(art) {
+            var matchCat = !currentCat || art.category === currentCat;
+            var matchQuery = !currentQuery || 
+                art.title.toLowerCase().indexOf(currentQuery.toLowerCase()) !== -1 ||
+                art.excerpt.toLowerCase().indexOf(currentQuery.toLowerCase()) !== -1;
+            return matchCat && matchQuery;
+        });
+
+        countEl.textContent = filtered.length + ' artikel';
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div class="empty">' +
+                '<strong>Belum ada artikel</strong>' +
+                '<span>Belum ada artikel yang cocok dengan pencarian Anda.</span>' +
+                '</div>';
+            return;
+        }
+
+        var html = '';
+        filtered.forEach(function(art) {
+            html += '<a class="card" href="berita_detail.html?slug=' + encodeURIComponent(art.slug) + '">' +
+                (art.cover ? '<img class="cover" src="' + art.cover + '" alt="Sampul: ' + art.title + '" loading="lazy">' : '') +
+                '<div class="card-body">' +
+                    '<div class="meta">' +
+                        '<span class="category">' + art.category + '</span>' +
+                        '<time>' + art.dateFormatted + '</time>' +
+                    '</div>' +
+                    '<h2>' + art.title + '</h2>' +
+                    '<p>' + art.excerpt + '</p>' +
+                    '<span class="read-more">' +
+                        '<span>Baca artikel</span>' +
+                        '<span aria-hidden="true">&rarr;</span>' +
+                    '</span>' +
+                '</div>' +
+            '</a>';
+        });
+
+        grid.innerHTML = html;
+    }
+
+    pills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            currentCat = pill.getAttribute('data-cat') || '';
+            render();
+            updateUrl();
+        });
+    });
+
+    searchInput.addEventListener('input', function() {
+        currentQuery = searchInput.value.trim();
+        render();
+        updateUrl();
+    });
+
+    function updateUrl() {
+        var p = new URLSearchParams();
+        if (currentCat) p.set('kategori', currentCat);
+        if (currentQuery) p.set('q', currentQuery);
+        var newRel = window.location.pathname + (p.toString() ? '?' + p.toString() : '');
+        history.replaceState(null, '', newRel);
+    }
+
+    render();
+})();
+</script>
+</body>
+</html>

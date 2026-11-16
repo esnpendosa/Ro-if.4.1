@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" href="assets/images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap">
+    <title id="doc-title">Detail Artikel - AgriVoice AI</title>
+    <meta id="meta-desc" name="description" content="Kabar, cerita, dan tips pertanian dari AgriVoice AI.">
+    <meta id="og-title" property="og:title" content="Detail Artikel - AgriVoice AI">
+    <meta id="og-desc" property="og:description" content="Kabar, cerita, dan tips pertanian dari AgriVoice AI.">
+    <meta property="og:type" content="article">
+    <meta id="og-img" property="og:image" content="assets/images/logo.png">
+    <link rel="stylesheet" href="css/article.css">
+</head>
+<body>
+<header class="site-header"><div class="w">
+    <a class="brand" href="index.html">
+        <img src="assets/images/logo.png" alt="AgriVoice AI">
+        <span>AgriVoice AI</span>
+    </a>
+    <nav>
+        <a href="index.html">Beranda</a>
+        <a class="active" href="berita.html">Berita</a>
+        <a href="index.html#kontak">Hubungi</a>
+    </nav>
+</div></header>
+
+<main><div class="w" id="article-container">
+    <article class="article" id="article-view">
+        <a class="back-link" href="berita.html"><span aria-hidden="true">&larr;</span> Kembali ke berita</a>
+        
+        <header class="article-head">
+            <div class="article-meta">
+                <span class="category" id="art-cat">Tips Tani</span>
+                <time class="date" id="art-date">15 November 2026</time>
+            </div>
+            <h1 id="art-title">Memuat artikel...</h1>
+            <p class="summary" id="art-summary"></p>
+        </header>
+
+        <img class="cover" id="art-cover" src="" alt="" style="display:none">
+
+        <section class="reading-card">
+            <div class="content" id="art-content"></div>
+            <div class="actions">
+                <a class="button share" id="share-wa" href="#" target="_blank" rel="noopener noreferrer">
+                    <span aria-hidden="true">&#x2197;</span> Bagikan ke WhatsApp
+                </a>
+                <a class="button alt" href="berita.html">Berita lainnya</a>
+            </div>
+        </section>
+    </article>
+
+    <div class="notfound" id="not-found-view" style="display:none">
+        <span class="category">404</span>
+        <h1>Artikel Tidak Ditemukan</h1>
+        <p>Artikel yang Anda cari tidak tersedia atau tautan sudah berpindah.</p>
+        <a class="button" href="berita.html">Kembali ke Daftar Berita</a>
+    </div>
+</div></main>
+
+<footer><div class="w">
+    <span>© 2026 AgriVoice AI</span>
+    <a href="berita.html">Jelajahi berita lainnya</a>
+</div></footer>
+
+<script src="js/articles.js"></script>
+<script>
+(function() {
+    var articles = window.ARTICLES || [];
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug') || (articles[0] ? articles[0].slug : '');
+
+    var article = articles.find(function(a) { return a.slug === slug; });
+    var articleView = document.getElementById('article-view');
+    var notFoundView = document.getElementById('not-found-view');
+
+    if (!article) {
+        articleView.style.display = 'none';
+        notFoundView.style.display = 'block';
+        document.title = 'Artikel Tidak Ditemukan - AgriVoice AI';
+        return;
+    }
+
+    // Set page titles & meta
+    document.title = article.title + ' - AgriVoice AI';
+    document.getElementById('doc-title').textContent = article.title + ' - AgriVoice AI';
+    document.getElementById('meta-desc').setAttribute('content', article.excerpt);
+    document.getElementById('og-title').setAttribute('content', article.title);
+    document.getElementById('og-desc').setAttribute('content', article.excerpt);
+
+    // Set view elements
+    document.getElementById('art-cat').textContent = article.category;
+    document.getElementById('art-date').textContent = article.dateFormatted;
+    document.getElementById('art-title').textContent = article.title;
+    document.getElementById('art-summary').textContent = article.excerpt;
+
+    var coverEl = document.getElementById('art-cover');
+    if (article.cover) {
+        coverEl.src = article.cover;
+        coverEl.alt = 'Sampul: ' + article.title;
+        coverEl.style.display = 'block';
+        document.getElementById('og-img').setAttribute('content', article.cover);
+    } else {
+        coverEl.style.display = 'none';
+    }
+
+    // Paragraph format
+    var paragraphs = article.body.split('\n\n').filter(function(p) { return p.trim() !== ''; });
+    var contentHtml = '';
+    paragraphs.forEach(function(p) {
+        contentHtml += '<p>' + p.replace(/\n/g, '<br>') + '</p>';
+    });
+    document.getElementById('art-content').innerHTML = contentHtml;
+
+    // WhatsApp share link
+    var pageUrl = window.location.href;
+    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(article.title + ' - ' + pageUrl);
+    document.getElementById('share-wa').setAttribute('href', waUrl);
+})();
+</script>
+</body>
+</html>
